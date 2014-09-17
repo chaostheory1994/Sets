@@ -118,15 +118,17 @@ void my_setup(int argc, char **argv) {
     needs_init = 1;
     guess = 0;
     ratio = 880.0/640.0;
-  if (argc >= 2) {
-    bPlayMode = FALSE;
-    set_load_game_file(argv[1]);
-  }
-  else {
-    bPlayMode = TRUE;
-  }
-    glLineWidth(2.0);
-	return;
+    if (argc >= 2) {
+      bPlayMode = FALSE;
+      set_load_game_file(argv[1]);
+    }
+    else {
+      bPlayMode = TRUE;
+    }
+      glLineWidth(2.0);
+      set_gen_deck();
+      set_shuffle();
+      return;
 }
 
 void my_reshape(int w, int h) {
@@ -261,12 +263,45 @@ void my_display(void) {
     }
 
     // This is the progress squares.
+    glPushMatrix();
+    glTranslatef(54, 30, 0);
     for(int i = 0; i < found; i++){
-
+        // Yellow Box
+        glColor3f(1, 1, 0);
+        glBegin(GL_POLYGON);
+        glVertex2f((i*40), 30);
+        glVertex2f((i*40), 0);
+        glVertex2f((i*40)+30, 0);
+        glVertex2f((i*40)+30, 30);
+        glEnd();
+        // Gray Border
+        glColor3f(0.5, 0.5, 0.5);
+        glBegin(GL_LINE_LOOP);
+        glVertex2f((i*40), 30);
+        glVertex2f((i*40), 0);
+        glVertex2f((i*40)+30, 0);
+        glVertex2f((i*40)+30, 30);
+        glEnd();
     }
     for(int i = found; i < total; i++){
-
+        // Black Box
+        glColor3f(0, 0, 0);
+        glBegin(GL_POLYGON);
+        glVertex2f((i*40), 30);
+        glVertex2f((i*40), 0);
+        glVertex2f((i*40)+30, 0);
+        glVertex2f((i*40)+30, 30);
+        glEnd();
+        // Gray Border
+        glColor3f(0.5, 0.5, 0.5);
+        glBegin(GL_LINE_LOOP);
+        glVertex2f((i*40), 30);
+        glVertex2f((i*40), 0);
+        glVertex2f((i*40)+30, 0);
+        glVertex2f((i*40)+30, 30);
+        glEnd();
     }
+    glPopMatrix();
 
 	/* buffer is ready */
 	glutSwapBuffers();
@@ -287,7 +322,7 @@ void play_game(){
         guess = 1;
         found++;
         // Did the user find all the solutions?
-        //if(found == total) needs_init = 1;
+        if(found == total) needs_init = 1;
     }
     else if(temp == NOSET){
         guess = 2;
@@ -299,8 +334,6 @@ void play_game(){
 
 // This will initialize the game.
 void init_game(){
-    set_gen_deck();
-    set_shuffle();
     set_next_game();
     total = set_find_all();
     needs_init = 0;

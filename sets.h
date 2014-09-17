@@ -1,6 +1,6 @@
 #define NUM_CARDS   81
-#define NUM_INPLAY  12  
-#define NUM_SETCARDS 3  
+#define NUM_INPLAY  12
+#define NUM_SETCARDS 3
 
 #define MAX_SET_BUFFER 30 /* just a guess */
 
@@ -64,7 +64,7 @@ void set_next_game();
 void set_reset_queue(CARD *pc_set[]) ;
 int  set_full_queue(CARD *pc_set[]);
 int  set_in_queue(CARD *pc, CARD*pc_set[]);
-int  iter_queue(CARD *pc, CARD *pc_set[]); 
+int  iter_queue(CARD *pc, CARD *pc_set[]);
 int  set_proc_one_input(int iSel) ;
 
 int set_check_user_set() ;
@@ -78,5 +78,7 @@ void set_read_next_game();
 void set_load_game_file(char *fname) ;
 
 int set_find_all();
+
+
 
 

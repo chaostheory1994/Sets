@@ -202,7 +202,7 @@ int set_check_user_set() {
     set_reset_queue(pc_user_set);
   }
   else {
-    printf ("You don't have enough cards to form a set\n");
+    //printf ("You don't have enough cards to form a set\n");
     ret = USRERR;
   }
   return ret;
@@ -210,7 +210,7 @@ int set_check_user_set() {
 
 int set_check(CARD *pc_set[], int bVerbose){
   int i;
-  int bSet = TRUE;
+  int bSet = SET;
   int rgv[NUM_SETCARDS];
   
   for (i=0; i<NUM_SETCARDS;i++)
@@ -218,7 +218,7 @@ int set_check(CARD *pc_set[], int bVerbose){
   if (!set_check_attribute (rgv)) {
     if (bVerbose) 
       printf ("Not a set: Colors are not all same or all different\n");
-    bSet = FALSE;
+    bSet = NOSET;
   }
 
   for (i=0; i<NUM_SETCARDS;i++)
@@ -226,7 +226,7 @@ int set_check(CARD *pc_set[], int bVerbose){
   if (!set_check_attribute(rgv)) {
     if (bVerbose) 
       printf ("Not a set: Shapes are not all same or all different\n");
-    bSet = FALSE;
+    bSet = NOSET;
   }
 
   for (i=0; i<NUM_SETCARDS;i++)
@@ -234,7 +234,7 @@ int set_check(CARD *pc_set[], int bVerbose){
   if (!set_check_attribute (rgv)) {
     if (bVerbose) 
       printf ("Not a set: Numbers are not all same or all different\n");
-    bSet = FALSE;
+    bSet = NOSET;
   }
 
   for (i=0; i<NUM_SETCARDS;i++)
@@ -242,10 +242,10 @@ int set_check(CARD *pc_set[], int bVerbose){
   if (!set_check_attribute (rgv)) {
     if (bVerbose) 
       printf ("Not a set: Patterns are not all same or all different\n");
-    bSet = FALSE;
+    bSet = NOSET;
   }
   
-  if (bVerbose && bSet) {
+  if (bVerbose && (bSet==SET)) {
     /* make sure that this is a new set -- only do this when user is playing */
     bSet = set_match_set();
   }
@@ -281,7 +281,7 @@ int set_match_set() {
   }
   if (i == iSets_top) { /* not in soln set */
     printf ("You've already found this set before\n");
-    return FALSE;
+    return NOSET;
   }
   /* remove from soln set, add into found set */
   for (j=0; j<NUM_SETCARDS; j++) 
@@ -292,7 +292,7 @@ int set_match_set() {
     for (j=0; j<NUM_SETCARDS; j++) 
       rgpc_sets[k][j]=  rgpc_sets[k+1][j] ;
   iSets_top--;
-  return TRUE;
+  return SET;
 }
 
 /* brute-force: just check all possible permutations */
@@ -309,7 +309,7 @@ int set_find_all() {
       pc_set[1] = inplay[j];
       for (k=j+1; k<NUM_INPLAY; k++) {
 	pc_set[2] = inplay[k];
-	if (set_check(pc_set, FALSE)) {
+	if (set_check(pc_set, FALSE) == SET) {
 	  if (iSets_top >= MAX_SET_BUFFER) {
 	    printf ("Warning: there are more than %d Sets", MAX_SET_BUFFER);
 	    break;
@@ -422,12 +422,12 @@ void set_read_next_game() {
       continue;
     iCard = get_card_id(buffer);
     inplay[i++] = &(deck[iCard]);
-    if (i > NUM_INPLAY)
+    if (i >= NUM_INPLAY)
       break;
   }
   if (feof(fp_puzzles)) { 
     /* go back to the top */
-    fseek(fp_puzzles,0, SEEK_SET);
+    rewind(fp_puzzles);
   }
 }
 
