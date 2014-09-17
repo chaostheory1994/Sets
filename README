@@ -1,4 +1,7 @@
 Name: Jacob Schreiner
 Platform: Ubuntu 14.04 (3.13.0-35-generic)
-Problems: 
+Problems: The way i implamented the interface made me put comments before "printf ("You don't have enough cards to form a set\n");" in the "set_check_user_set()" method. This is because the phrase would get spammed and i would not be able to read other console outputs.
 Citations:
+The structure of glmain came from HW0.
+glBegin man page for GL_LINE_STRIP and GL_LINE_LOOP.
+got glLineWidth from autocomplete IDE feature.
