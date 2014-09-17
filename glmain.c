@@ -211,6 +211,7 @@ void my_mouse(int button, int state, int mousex, int mousey) {
 
 void my_display(void) {
 	/* clear the buffer */
+	int i;
 	glClear(GL_COLOR_BUFFER_BIT) ;
     if(guess == 0){
         glColor3f(0, 0, 0);
@@ -233,7 +234,7 @@ void my_display(void) {
     glEnd();
 
     // This is where we draw the cards.
-    for(int i = 0; i < NUM_INPLAY; i++){
+    for(i = 0; i < NUM_INPLAY; i++){
         //First thing to do is draw the background.
         glColor3f(1, 1, 1);
         glPushMatrix();
@@ -265,7 +266,7 @@ void my_display(void) {
     // This is the progress squares.
     glPushMatrix();
     glTranslatef(54, 30, 0);
-    for(int i = 0; i < found; i++){
+    for(i = 0; i < found; i++){
         // Yellow Box
         glColor3f(1, 1, 0);
         glBegin(GL_POLYGON);
@@ -283,7 +284,7 @@ void my_display(void) {
         glVertex2f((i*40)+30, 30);
         glEnd();
     }
-    for(int i = found; i < total; i++){
+    for(i = found; i < total; i++){
         // Black Box
         glColor3f(0, 0, 0);
         glBegin(GL_POLYGON);
@@ -347,6 +348,7 @@ void init_game(){
 // It is responsible for drawing the card's features through various switches.
 void draw_card(CARD* c){
     float temp;
+	int i;
     // First we set the color
     switch(c->color){
         case RED: glColor3f(1,0,0); break;
@@ -367,7 +369,7 @@ void draw_card(CARD* c){
             // DIAMONDS!!!!
             glPushMatrix();
             glTranslatef(temp, 14.0, 0);
-            for(int i = 0; i <= c->num; i++){
+            for(i = 0; i <= c->num; i++){
                 // The offsets to the points will just be for multiple of the shape.
                 if(c->pattern == OPEN) glBegin(GL_LINE_LOOP);
                 else glBegin(GL_POLYGON);
@@ -384,7 +386,7 @@ void draw_card(CARD* c){
             // Very Similar code as above but refined for a rectangle.
             glPushMatrix();
             glTranslatef(temp, 14.0, 0);
-            for(int i = 0; i <= c->num; i++){
+            for(i = 0; i <= c->num; i++){
                 if(c->pattern == OPEN) glBegin(GL_LINE_LOOP);
                 else glBegin(GL_POLYGON);
                 glVertex2f((i*54), 112);
@@ -399,7 +401,7 @@ void draw_card(CARD* c){
             // Finally dese nuts.
             glPushMatrix();
             glTranslatef(temp, 70, 0);
-            for(int i = 0; i <= c->num; i++){
+            for(i = 0; i <= c->num; i++){
                 // Top Half
                 if(c->pattern == OPEN) glBegin(GL_LINE_STRIP);
                 else glBegin(GL_POLYGON);
@@ -435,7 +437,7 @@ void draw_card(CARD* c){
         // If the object is striped, we just overlay the card with a bunch of lines.
         glColor3f(1, 1, 1);
         glBegin(GL_LINES);
-        for(int i = 0; i < 140; i+=4){
+        for(i = 0; i < 140; i+=4){
             glVertex2f(0, i);
             glVertex2f(180, i);
         }
