@@ -16,7 +16,7 @@
 #define min(a,b) ((a)<(b)?(a):(b))
 #define my_assert(X,Y) ((X)?(void) 0:(printf("error:%s in %s at %d", Y, __FILE__, __LINE__), myabort()))
 
-
+#define FLASH 100  /*  100 msec */
 
 #define DELTA_TIME 10  /* defined to be 10 msec */
 
@@ -33,6 +33,7 @@ void my_idle(void);
 void play_game(void);
 void init_game(void);
 void draw_card(CARD*);
+void my_timer(int v);
 
 // Global Variables
 int width;
@@ -43,7 +44,9 @@ int needs_init;
 int guess;
 int found;
 int total;
+float background_r, background_g, background_b;
 double ratio;
+
 
 
 
@@ -90,7 +93,7 @@ void glut_setup(void) {
 	glutMotionFunc( my_mouse_drag);
 	glutKeyboardFunc (my_keyboard);
 	glutIdleFunc( play_game );
-
+        glutTimerFunc( FLASH, my_timer, 1); // first argument is a duration in msec defined in glmain.h; third argument is not used
 
 	return ;
 }
@@ -107,7 +110,7 @@ void gl_setup(void) {
 	/* set the viewable portion  */
 	// Since the original window size is this size
 	// We will draw with respect to that.
-	gluOrtho2D(0, 880.0, 0, 640.0);
+	gluOrtho2D(0, 888.0, 0, 640.0);
 	return ;
 }
 
@@ -117,7 +120,7 @@ void my_setup(int argc, char **argv) {
      predefined game configurations */
     needs_init = 1;
     guess = 0;
-    ratio = 880.0/640.0;
+    ratio = 888.0/640.0;
     if (argc >= 2) {
       bPlayMode = FALSE;
       set_load_game_file(argv[1]);
@@ -134,31 +137,9 @@ void my_setup(int argc, char **argv) {
 void my_reshape(int w, int h) {
 	/* define viewport -- x, y, (origin is at lower left corner) width, height */
 	// Now we much change the viewpoint to keep the same aspect ratio as 888/640.
-	double curr_ratio = (double)w/(double)h;
-	printf("%1.2f, %1.2f\n", curr_ratio, ratio);
-	if(curr_ratio < ratio){
-        // This means that the widths will line up.
-        int view_height = h * ((double)w/880.0);
-        margin_width = 0;
-        margin_height = (h - view_height)/2;
-        glViewport (0, margin_height, w, view_height);
-	}
-	else if(curr_ratio > ratio){
-        // This is where the heights match and the width gets margins.
-        int view_width = w * ((double)h/640.0);
-        margin_width = (w - view_width)/2;
-        margin_height = 0;
-        glViewport(margin_width, 0, view_width, h);
-	}
-	else {
-        //This is where the ratios are the same.
-        margin_width = 0;
-        margin_height = 0;
-        glViewport(0,0,w,h);
-	}
-
-	width = w;
-	height = h;
+    margin_width = (w-888)/2;
+    margin_height = (h-640)/2;
+    glViewport(margin_width, margin_height, 888, 640);
 }
 
 /* Sample keyboard callback function.
@@ -166,13 +147,59 @@ void my_reshape(int w, int h) {
  by typing the letter q.
  */
 void my_keyboard( unsigned char key, int x, int y ) {
-
+    int conv;
 	switch( key ) {
 		case 'q':
 		case 'Q':
 			exit(0) ;
 			break ;
-		default: break;
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '6':
+            case '5':
+            case '8':
+            case '7':
+            case '9':
+                conv = key - 49;
+                // Just have the keyboard emulate a mouse click. Make my life easier :)
+                my_mouse(GLUT_LEFT_BUTTON, GLUT_DOWN, margin_width+((conv%4)*200)+54,margin_height+((conv/4)*160)+90);
+                break;
+            case 'a':
+            case 'A':   
+            case 'b':
+            case 'B':
+            case 'c':
+            case 'C':
+                // Since this is seperated in the ascii table, it will get a special case.
+                // 65 - 9 make A = 9;
+                conv= key - (65 - 9);
+                // was the character lowercase?
+                if(conv > 11) conv -= 32;
+                my_mouse(GLUT_LEFT_BUTTON, GLUT_DOWN, margin_width+((conv%4)*200)+54,margin_height+((conv/4)*160)+90);
+                break;
+            case 'r':
+            case 'R':
+                set_reset_queue(pc_user_set);
+                break;
+
+            case 13:
+                // 13 is the carriage return.
+                if(set_check_user_set() == USRERR){
+                    guess = 3;
+                }
+                break;
+            case 'p':
+            case 'P':
+                bPlayMode = TRUE;
+                break;
+            case 'n':
+            case 'N':
+                needs_init = 1;
+                break;
+                
+            default: break;
 	}
 	return ;
 }
@@ -188,10 +215,10 @@ void my_mouse_drag(int x, int y) {
  */
 void my_mouse(int button, int state, int mousex, int mousey) {
     if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN){
-        // Converts mouse coordinates to orthos coordinates.
-        int x = ((double)mousex/(double)width)*880;
+        // Reconfigures the coordinates for whatever margin there is.
+        int x = (mousex - margin_width);
         // Also will invert y to start from bottom left corner
-        int y = 640 - ((double)mousey/(double)height)*640;
+        int y = 640 - (mousey - margin_height);
 
         // Now we will figure out which card the player just clicked on.
         // This will be a similar calculation to where the cards were placed.
@@ -206,6 +233,7 @@ void my_mouse(int button, int state, int mousex, int mousey) {
             if(x <= (cardX*200)+(180+54) && y <= (cardY*160)+(140+90)) set_proc_one_input(cardnum+1);
         }
     }
+    else if(button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN) needs_init = 1;
 
 }
 
@@ -213,17 +241,8 @@ void my_display(void) {
 	/* clear the buffer */
 	int i;
 	glClear(GL_COLOR_BUFFER_BIT) ;
-    if(guess == 0){
-        glColor3f(0, 0, 0);
-    }
-    else if(guess == 1){
-        glColor3f(0, 1, 0);
-        guess = 0;
-    }
-    else if(guess == 2){
-        glColor3f(1, 0, 0);
-        guess = 0;
-    }
+        glColor3f(background_r, background_g, background_b);
+    
 
     /* draw something */
     glBegin(GL_POLYGON);
@@ -339,6 +358,9 @@ void init_game(){
     total = set_find_all();
     needs_init = 0;
     found = 0;
+    background_r = 0;
+    background_g = 0;
+    background_b = 0;
 }
 
 
@@ -444,4 +466,38 @@ void draw_card(CARD* c){
         glEnd();
     }
     
+}
+
+void my_timer(int v) {
+    if(guess == 0){
+        // Default Background
+        background_r = 0;
+        background_g = 0;
+        background_b = 0;
+    }
+    else if(guess == 1){
+        // Correct Background
+        background_r = 0;
+        background_g = 1;
+        background_b = 0;
+        guess = 0;
+    }
+    else if(guess == 2){
+        // Wrong Background
+        background_r = 0;
+        background_g = 0;
+        background_b = 1;
+        guess = 0;
+    }
+    else if(guess == 3){
+        // Not enough cards background.
+        background_r = 1;
+        background_g = 0;
+        background_b = 0;
+        guess = 0;
+    }
+    else guess = 0;
+    // Because the timer is only ticking once for me, i will just recall the timer again.
+    glutTimerFunc( FLASH, my_timer, 1);
+    return;
 }

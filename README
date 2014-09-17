@@ -1,6 +1,8 @@
 Name: Jacob Schreiner
 Platform: Ubuntu 14.04 (3.13.0-35-generic)
 Problems: The way i implamented the interface made me put comments before "printf ("You don't have enough cards to form a set\n");" in the "set_check_user_set()" method. This is because the phrase would get spammed and i would not be able to read other console outputs.
+The biggest problem was the timing of me starting the project. When i had, the professor's website became "unauthorized" for me and as such i was unable to open the project pdf. Instead of putting it off however, i decided to start the project anyway and make the necessary changes later. However, the way i implamented something things make it impossible to work one requirement without reworking the entire code. One of these things is, my program will automatically detect if u pick 3 cards and as such there is no need to hit enter to check for ur set (I implamented it anyway because reasons, but enter will literally only flash the screen red). Also, since u cant check the cards manually without selecting 3 cards, it is only possible to hit a red screen if u hit enter. Also, it is impossible to select more than 3 cards as it will check and reset at 3.
+The other problem cause by the unauthorized site bug caused me to use my glhello as a skeleton rather than the provided skeleton. Instead of doing unnecessary work to move it to the skeleton, i am keeping it in glhello with it renamed to glmain.
 Citations:
 The structure of glmain came from HW0.
 glBegin man page for GL_LINE_STRIP and GL_LINE_LOOP.
